@@ -31,6 +31,29 @@ app.get("/", async (req, res) => {
   res.json(dbres.rows);
 });
 
+app.post("/post", async (req, res) => {
+  const { title, message } = req.body;
+  if (typeof message === "string") {
+
+
+    const text =
+    "INSERT INTO artists(name) VALUES($1) RETURNING *";
+    const values = ["hello"];
+
+    const response = await client.query(text, values);
+
+    res.status(201).json({
+      status: "success",
+    });
+
+  } else {
+    res.status(400).json({
+      status: "fail",
+    });
+  
+  }
+});
+
 
 //Start the server on the given port
 const port = process.env.PORT;
