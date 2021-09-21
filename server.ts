@@ -26,16 +26,19 @@ app.use(cors()) //add CORS support to each following route handler
 const client = new Client(dbConfig);
 client.connect();
 
+// Get all posts from database
+
 app.get("/pastes", async (req, res) => {
   const dbres = await client.query('select * from categories');
   res.send(dbres.rows)
 });
 
+// Add a new post to the database
+
 app.post("/pastes", async (req, res) => {
   const { title, message } = req.body;
   console.log(title,message)
   if (typeof message === "string") {
-
 
     const text =
     "INSERT INTO categories(context,title) VALUES($1,$2) RETURNING *";
@@ -55,6 +58,8 @@ app.post("/pastes", async (req, res) => {
   }
 });
 
+// Update a post from the database
+
 app.put("/pastes/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -70,11 +75,15 @@ app.put("/pastes/:id", async (req, res) => {
   }
 });
 
+// Get a post specified by id
+
 app.get("/pastes/:id", async (req, res) =>{
   const {id} = req.params;
   const dbres = await client.query('select * from categories where id = $1',[id]);
   res.send(dbres.rows)
 });
+
+// Delete a post from the database
 
 app.delete("/pastes/:id", async (req,res) =>{
   try {

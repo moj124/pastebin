@@ -1,5 +1,5 @@
 {
-  "name": "my-fullstack-app",
+  "name": "pastebin",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -8,7 +8,7 @@
     "start:dev": "LOCAL=true ts-node server.ts",
     "postinstall": "tsc"
   },
-  "author": "your name here",
+  "author": "Michael Jones",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
