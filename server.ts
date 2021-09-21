@@ -28,17 +28,18 @@ client.connect();
 
 app.get("/", async (req, res) => {
   const dbres = await client.query('select * from categories');
-  res.json(dbres.rows);
+  res.send(dbres.rows)
 });
 
 app.post("/post", async (req, res) => {
   const { title, message } = req.body;
+  console.log(title,message)
   if (typeof message === "string") {
 
 
     const text =
-    "INSERT INTO artists(name) VALUES($1) RETURNING *";
-    const values = ["hello"];
+    "INSERT INTO categories(context,title) VALUES($1,$2) RETURNING *";
+    const values = [message,title];
 
     const response = await client.query(text, values);
 
