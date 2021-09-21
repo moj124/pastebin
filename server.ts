@@ -26,12 +26,12 @@ app.use(cors()) //add CORS support to each following route handler
 const client = new Client(dbConfig);
 client.connect();
 
-app.get("/", async (req, res) => {
+app.get("/pastes", async (req, res) => {
   const dbres = await client.query('select * from categories');
   res.send(dbres.rows)
 });
 
-app.post("/post", async (req, res) => {
+app.post("/pastes", async (req, res) => {
   const { title, message } = req.body;
   console.log(title,message)
   if (typeof message === "string") {
@@ -52,6 +52,39 @@ app.post("/post", async (req, res) => {
       status: "fail",
     });
   
+  }
+});
+
+app.put("/pastes/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title,description } = req.body;
+    const updatePost = await client.query(
+      "UPDATE categories SET description = $1 AND title = $2 WHERE id = $3",
+      [description,title, id]
+    );
+
+    res.json("Post was updated!");
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+app.get("/pastes/:id", async (req, res) =>{
+  const {id} = req.params;
+  const dbres = await client.query('select * from categories where id = $1',[id]);
+  res.send(dbres.rows)
+});
+
+app.delete("/pastes/:id", async (req,res) =>{
+  try {
+    const { id } = req.params;
+    const deleteTodo = await client.query("DELETE FROM categories WHERE id = $1", [
+      id
+    ]);
+    res.json("Post was deleted!");
+  } catch (err) {
+    console.log(err.message);
   }
 });
 
