@@ -65,7 +65,7 @@ app.put("/pastes/:id", async (req, res) => {
     const { id } = req.params;
     const { title,context } = req.body;
     const updatePost = await client.query(
-      "UPDATE categories SET context = $1 AND title = $2 WHERE id = $3",
+      "UPDATE categories SET context = $1, title = $2 WHERE id = $3",
       [context,title, id]
     );
 
