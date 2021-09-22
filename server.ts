@@ -63,10 +63,10 @@ app.post("/pastes", async (req, res) => {
 app.put("/pastes/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { title,description } = req.body;
+    const { title,context } = req.body;
     const updatePost = await client.query(
-      "UPDATE categories SET description = $1 AND title = $2 WHERE id = $3",
-      [description,title, id]
+      "UPDATE categories SET context = $1 AND title = $2 WHERE id = $3",
+      [context,title, id]
     );
 
     res.json("Post was updated!");
