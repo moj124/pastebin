@@ -29,7 +29,7 @@ client.connect();
 // Get all posts from database
 
 app.get("/pastes", async (req, res) => {
-  const dbres = await client.query('select * from categories');
+  const dbres = await client.query('select * from categories where expiration_date >= now()');
   res.send(dbres.rows)
 });
 
