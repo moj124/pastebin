@@ -65,7 +65,7 @@ app.put("/pastes/:id", async (req, res) => {
     const { id } = req.params;
     const { title,context,expiration } = req.body;
     const updatePost = await client.query(
-      "UPDATE categories SET context = $1, title = $2 expiration_date = $3 WHERE id = $4",
+      "UPDATE categories SET context = $1, title = $2, expiration_date = $3 WHERE id = $4",
       [context,title, expiration === "" ? null: expiration, id]
     );
 
