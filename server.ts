@@ -36,13 +36,13 @@ app.get("/pastes", async (req, res) => {
 // Add a new post to the database
 
 app.post("/pastes", async (req, res) => {
-  const { title, message } = req.body;
+  const { title, message, expiration } = req.body;
   console.log(title,message)
   if (typeof message === "string") {
 
     const text =
-    "INSERT INTO categories(context,title) VALUES($1,$2) RETURNING *";
-    const values = [message,title];
+    "INSERT INTO categories(context,title,expiration_date) VALUES($1,$2,$3) RETURNING *";
+    const values = [message,title,expiration];
 
     const response = await client.query(text, values);
 
