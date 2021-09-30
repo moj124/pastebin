@@ -37,7 +37,7 @@ app.get("/pastes", async (req, res) => {
 
 app.post("/pastes", async (req, res) => {
   const { title, message, expiration } = req.body;
-  console.log(title,message)
+  console.log(title,message,expiration)
   if (typeof message === "string") {
 
     const text =
