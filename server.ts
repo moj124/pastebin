@@ -15,7 +15,7 @@ const herokuSSLSetting = { rejectUnauthorized: false }
 const sslSetting = process.env.LOCAL ? false : herokuSSLSetting
 const dbConfig = {
   connectionString: process.env.DATABASE_URL,
-  ssl: sslSetting,
+  ssl: herokuSSLSetting,
 };
 
 const app = express();
@@ -29,32 +29,33 @@ client.connect();
 // Get all posts from database
 
 app.get("/pastes", async (req, res) => {
-  const dbres = await client.query('select * from categories where expiration_date >= now()');
-  res.send(dbres.rows)
+  try {
+    const dbres = await client.query('select * from posts where (not can_expire) or (expiration >= now() and can_expire) order by date desc');
+    res.send(dbres.rows)
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 // Add a new post to the database
 
 app.post("/pastes", async (req, res) => {
-  const { title, message, expiration } = req.body;
-  console.log(title,message,expiration)
-  if (typeof message === "string") {
+  // console.log(req.body)
+  try {
+    const { post_id, title, language, expiration, date, password, content } = req.body;
 
     const text =
-    "INSERT INTO categories(context,title,expiration_date) VALUES($1,$2,$3) RETURNING *";
-    const values = [message,title,expiration];
+    "INSERT INTO posts VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *";
+    const values = [post_id,title,language === 'none' ? null: language,date,expiration,expiration === date ? false:true,password === '' ? null: password,content];
 
     const response = await client.query(text, values);
 
     res.status(201).json({
       status: "success",
+      data: response.rows
     });
-
-  } else {
-    res.status(400).json({
-      status: "fail",
-    });
-  
+  } catch (error) {
+    console.error(error);
   }
 });
 
@@ -63,13 +64,15 @@ app.post("/pastes", async (req, res) => {
 app.put("/pastes/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { title,context,expiration } = req.body;
-    const updatePost = await client.query(
-      "UPDATE categories SET context = $1, title = $2, expiration_date = $3 WHERE id = $4",
-      [context,title, expiration === "" ? null: expiration, id]
+    const {title, language, expiration, date, password, content } = req.body;
+    await client.query(
+      "UPDATE posts SET title = $2, language = $3, expiration = $4,date=$5, password = $6, content = $7, can_expire = $8 WHERE post_id = $1",
+      [id,title,language === 'none' ? null: language,expiration,date,password === '' ? null: password,content,expiration,expiration === date ? false:true]
     );
 
-    res.json("Post was updated!");
+    res.status(201).json({
+      status: "success"
+    });
   } catch (err) {
     console.error(err.message);
   }
@@ -79,8 +82,11 @@ app.put("/pastes/:id", async (req, res) => {
 
 app.get("/pastes/:id", async (req, res) =>{
   const {id} = req.params;
-  const dbres = await client.query('select * from categories where id = $1',[id]);
-  res.send(dbres.rows)
+  const response = await client.query('select * from posts where post_id = $1',[id]);
+  res.status(201).json({
+    status: "success",
+    data: response.rows[0]
+  });
 });
 
 // Delete a post from the database
@@ -88,10 +94,13 @@ app.get("/pastes/:id", async (req, res) =>{
 app.delete("/pastes/:id", async (req,res) =>{
   try {
     const { id } = req.params;
-    const deleteTodo = await client.query("DELETE FROM categories WHERE id = $1", [
+    await client.query("DELETE FROM posts WHERE post_id = $1 ", [
       id
     ]);
-    res.json("Post was deleted!");
+
+    res.status(201).json({
+      status: "success"
+    });
   } catch (err) {
     console.log(err.message);
   }
